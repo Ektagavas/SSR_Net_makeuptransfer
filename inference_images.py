@@ -35,7 +35,7 @@ def inference_single_image(model_, image_path_, input_size_=64):
     image_ = T.Compose([
         T.ToPILImage(),
         T.Resize((input_size_, input_size_)),
-        T.RandomHorizontalFlip(),
+        # T.RandomHorizontalFlip(),
         T.ToTensor(),
         T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])(image_)
     
@@ -72,15 +72,17 @@ if __name__ == "__main__":
         age_, cost_time = inference_single_image(inference_model, image_file_path)
         print("age:\t{}, used {} s in total.".format(age_[0], cost_time))
     elif os.path.isdir(image_file_path):  # a directory containing many images, inference them all!
-        results_list = []
+        results_list = [['Image', 'Predicted Age']]
         for image in os.listdir(image_file_path):
             age_, _ = inference_single_image(inference_model, os.path.join(image_file_path, image))
             
-            results_list.append(age_.tolist()[0])
+            results_list.append([image, int(age_.tolist()[0])])
             print("age:\t{}\t, image:\t{}".format(age_.tolist()[0], image))
-        import pandas as pd
+            # break
+        np.savetxt('ssr_premakeup_male_part1_utkface.csv', np.array(results_list), delimiter=',', fmt='%s')
+        # import pandas as pd
         
         # just a glimpse of the predicted results.
-        pd_result = pd.DataFrame(results_list)
-        print(pd_result.describe())
-        print(pd_result[0].value_counts())
+        # pd_result = pd.DataFrame(results_list)
+        # print(pd_result.describe())
+        # print(pd_result[0].value_counts())
